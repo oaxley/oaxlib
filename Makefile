@@ -17,7 +17,8 @@ SRC_DIR := src
 TARGET := liboaxlib
 CXX=g++
 CXXFLAGS := -I$(SRC_DIR) -I$(OBJ_DIR)
-LDFLAGS := -L/usr/lib -ldl -lpthread
+LDFLAGS := -L/usr/lib
+LDLIBS := -ldl -lpthread
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
@@ -69,12 +70,12 @@ static: $(TARGET_STATIC)
 $(GCH): $(PCH)
 	@ $(CXX) $(CXXFLAGS) $^ -o $@
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@ $(CXX) $(CXXFLAGS) -fPIC -c -include $(PCH) $^ -o $@
+%.o: %.cpp
+	@ $(CXX) $(CXXFLAGS) -fPIC -include $(PCH) -c $^ -o $@
 
 
 $(TARGET_SHARED): $(OBJECTS)
-	@ $(CXX) $(LDFLAGS) $^ -o $@
+	@ $(CXX) $(LDFLAGS) $(LDLIBS) $^ -o $@
 
 $(TARGET_STATIC): $(OBJECTS)
 	@ ar rcvs $@ $^ >/dev/null 2>&1
