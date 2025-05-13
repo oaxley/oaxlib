@@ -19,12 +19,22 @@ CXX=g++
 CXXFLAGS := -I$(SRC_DIR) -I$(OBJ_DIR)
 LDFLAGS := -L/usr/lib -ldl -lpthread
 
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+	LDFLAGS += -shared
+endif
+
+ifeq ($(UNAME_S),Darwin)
+	LDFLAGS += -dynamiclib
+endif
+
 ifdef mode
 	ifeq ($(mode), debug)
 		CXXFLAGS += -DDEBUG -g
 		TARGET := $(TARGET)d
 	endif
 endif
+
 TARGET_STATIC := $(BIN_DIR)/$(TARGET).a
 TARGET_SHARED := $(BIN_DIR)/$(TARGET).so
 
@@ -64,7 +74,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 
 
 $(TARGET_SHARED): $(OBJECTS)
-	@ $(CXX) $(LDFLAGS) -shared $^ -o $@
+	@ $(CXX) $(LDFLAGS) $^ -o $@
 
 $(TARGET_STATIC): $(OBJECTS)
 	@ ar rcvs $@ $^ >/dev/null 2>&1
